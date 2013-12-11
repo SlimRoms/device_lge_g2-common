@@ -75,6 +75,7 @@ USE_OPENGL_RENDERER := true
 TARGET_USES_ION := true
 TARGET_USES_OVERLAY := true
 TARGET_USES_C2D_COMPOSITION := true
+NUM_FRAMEBUFFER_SURFACE_BUFFERS := 3
 
 OVERRIDE_RS_DRIVER := libRSDriver_adreno.so
 
@@ -115,8 +116,6 @@ TARGET_NO_RPC := true
 TARGET_PROVIDES_GPS_LOC_API := true
 
 BOARD_CHARGER_ENABLE_SUSPEND := true
-
-BOARD_HARDWARE_CLASS := device/lge/g2-common/cmhw/
 
 BOARD_SEPOLICY_DIRS += \
         device/lge/g2-common/sepolicy
