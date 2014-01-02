@@ -196,6 +196,9 @@
                   autodetected from the Configuration. -->
     <bool name="config_showNavigationBar">true</bool>
 
+    <!-- Enable smartcover sleep/wake -->
+    <bool name="config_lidControlsSleep">true</bool>
+
 
     <integer-array name="config_autoBrightnessLevels">
         <item>32</item>
