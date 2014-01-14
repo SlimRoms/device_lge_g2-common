@@ -257,6 +257,9 @@ PRODUCT_PACKAGES += \
         loki_patch \
         loki_flash
 
+PRODUCT_PROPERTY_OVERRIDES += \
+  mm.enable.smoothstreaming=true
+
 $(call inherit-product, frameworks/native/build/phone-xxhdpi-2048-dalvik-heap.mk)
 
 ## These values are still too low and cause cache corruption. Use the hammerhead's
