@@ -249,10 +249,6 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PROPERTY_OVERRIDES += \
 	ro.input.noresample=1
 
-# Dexopt system to /cache
-PRODUCT_PROPERTY_OVERRIDES += \
-	dalvik.vm.dexopt-data-only=0
-
 # This hw ships locked, work around it with loki
 PRODUCT_PACKAGES += \
         loki.sh \
