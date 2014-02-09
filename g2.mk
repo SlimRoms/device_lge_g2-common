@@ -117,11 +117,17 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Audio Configuration
 PRODUCT_PROPERTY_OVERRIDES += \
-	persist.audio.handset.mic.type=digital \
-	persist.audio.dualmic.config=endfire \
-	persist.audio.fluence.voicecall=true \
-	persist.audio.fluence.voicerec=false \
-	persist.audio.fluence.speaker=false \
+        ro.qc.sdk.audio.ssr=false \
+        ro.qc.sdk.audio.fluencetype=fluence \
+        persist.audio.fluence.mode=endfire \
+        persist.audio.handset.mic=digital \
+        persist.audio.voicecall.mic=0 \
+        persist.audio.voice.clarity=none \
+        persist.audio.aanc.enable=false \
+        persist.audio.handset_rx_type=DEFAULT \
+        persist.audio.nsenabled=ON \
+        persist.speaker.prot.enable=false \
+        persist.audio.spkcall_2mic=OFF \
 	af.resampler.quality=255 \
 	audio.offload.buffer.size.kb=32 \
 	audio.offload.gapless.enabled=true \
