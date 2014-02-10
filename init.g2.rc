@@ -40,6 +40,9 @@ on init
     mkdir /sns 0775 system system
     mkdir /sns/cal 0771 system system
 
+    # Prevents permission denied error for telephony
+    chmod 0644 /proc/cmdline
+
 on fs
     mount_all ./fstab.g2
     write /sys/kernel/boot_adsp/boot 1
@@ -137,8 +140,6 @@ on boot
     chmod 0644 /proc/bluetooth/sleep/btwrite
     chown bluetooth bluetooth /proc/bluetooth/sleep/lpm
     chown bluetooth bluetooth /proc/bluetooth/sleep/btwrite
-    restorecon /proc/bluetooth/sleep/lpm
-    restorecon /proc/bluetooth/sleep/btwrite
 
 # lights perms
     chown system system /sys/class/leds/red/brightness
@@ -163,14 +164,10 @@ on post-fs-data
 # to observe dnsmasq.leases file for dhcp information of soft ap.
     chown dhcp system /data/misc/dhcp
 
-    mkdir /data/misc/playready
-    restorecon /data/misc/playready
-    mkdir /data/misc/tzapps
-    restorecon /data/misc/tzapps
-
     # Create directory used by audio subsystem
     mkdir /data/misc/audio 0770 audio audio
 
+    # Workaround for conn_init not copying the updated firmware
     # Make sure the default firmware is loaded
     write /sys/module/bcmdhd/parameters/firmware_path "/system/etc/firmware/fw_bcmdhd.bin"
 
@@ -197,7 +194,6 @@ on post-fs-data
     mkdir /data/system/sensors
     chmod 665 /data/system/sensors
     write /data/system/sensors/settings 1
-    restorecon /data/system/sensors/settings
     chmod 660 /data/system/sensors/settings
 
     # AKM setting data
@@ -252,8 +248,8 @@ on post-fs-data
     write /sys/devices/system/cpu/cpufreq/ondemand/up_threshold 90
     write /sys/devices/system/cpu/cpufreq/ondemand/io_is_busy 1
     write /sys/devices/system/cpu/cpufreq/ondemand/sampling_down_factor 4
-    write /sys/devices/system/cpu/cpufreq/ondemand/down_differential 10
-    write /sys/devices/system/cpu/cpufreq/ondemand/up_threshold_multi_core 70
+    write /sys/devices/system/cpu/cpufreq/ondemand/down_differential 3
+    write /sys/devices/system/cpu/cpufreq/ondemand/up_threshold_multi_core 80
     write /sys/devices/system/cpu/cpufreq/ondemand/down_differential_multi_core 3
     write /sys/devices/system/cpu/cpufreq/ondemand/optimal_freq 960000
     write /sys/devices/system/cpu/cpufreq/ondemand/sync_freq 960000
@@ -262,13 +258,21 @@ on post-fs-data
     write /sys/devices/system/cpu/cpu1/cpufreq/scaling_min_freq 300000
     write /sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq 300000
     write /sys/devices/system/cpu/cpu3/cpufreq/scaling_min_freq 300000
+    chown system /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+    chown system /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
     write /sys/devices/system/cpu/cpufreq/ondemand/middle_grid_step 7
     write /sys/devices/system/cpu/cpufreq/ondemand/middle_grid_load 40
     write /sys/devices/system/cpu/cpufreq/ondemand/high_grid_step 14
     write /sys/devices/system/cpu/cpufreq/ondemand/high_grid_load 50
+    write /sys/module/msm_thermal/core_control/enabled 1
     chown root system /sys/devices/system/cpu/mfreq
     chmod 0220 /sys/devices/system/cpu/mfreq
-    write /sys/module/msm_thermal/core_control/enabled 1
+    chown root.system /sys/devices/system/cpu/cpu1/online
+    chown root.system /sys/devices/system/cpu/cpu2/online
+    chown root.system /sys/devices/system/cpu/cpu3/online
+    chmod 664 /sys/devices/system/cpu/cpu1/online
+    chmod 664 /sys/devices/system/cpu/cpu2/online
+    chmod 664 /sys/devices/system/cpu/cpu3/online
     write /dev/cpuctl/apps/cpu.notify_on_migrate 1
 
     write /sys/devices/virtual/input/lge_touch/touch_gesture 1
@@ -278,9 +282,6 @@ on post-fs-data
     chmod 0664 /sys/devices/platform/tspdrv/nforce_timed
     chmod 0664 /sys/devices/platform/kcal_ctrl.0/kcal
     chmod 0664 /sys/devices/platform/kcal_ctrl.0/kcal_ctrl
-    restorecon /sys/devices/platform/tspdrv/nforce_timed
-    restorecon /sys/devices/platform/kcal_ctrl.0/kcal
-    restorecon /sys/devices/platform/kcal_ctrl.0/kcal_ctrl
 
     # Torch
     chown system camera /sys/class/leds/led:flash_torch/brightness
@@ -411,6 +412,7 @@ service p2p_supplicant /system/bin/wpa_supplicant \
     class main
     socket wpa_wlan0 dgram 660 wifi wifi
     disabled
+    oneshot
 
 service wpa_supplicant /system/bin/wpa_supplicant \
     -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf \
