@@ -199,6 +199,8 @@
     <!-- Enable smartcover sleep/wake -->
     <bool name="config_lidControlsSleep">true</bool>
 
+    <bool name="config_suspendWhenScreenOffDueToProximity">true</bool>
+
     <integer-array name="config_autoBrightnessLevels">
         <item>32</item>
         <item>82</item>

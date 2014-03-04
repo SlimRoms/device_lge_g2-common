@@ -129,8 +129,11 @@ PRODUCT_PROPERTY_OVERRIDES += \
         persist.speaker.prot.enable=false \
         persist.audio.spkcall_2mic=OFF \
         ro.config.vc_call_vol_steps=12 \
-        ro.config.vc_call_vol_default=8
-	af.resampler.quality=4 
+        ro.config.vc_call_vol_default=8 \
+	af.resampler.quality=255 \
+	audio.offload.buffer.size.kb=32 \
+	audio.offload.gapless.enabled=false \
+	av.offload.enable=true
 
 # Do not power down SIM card when modem is sent to Low Power Mode.
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -188,7 +191,6 @@ PRODUCT_PACKAGES += \
 	camera.g2
 
 PRODUCT_PACKAGES += \
-        audio_policy.default \
 	audio.primary.msm8974 \
 	audio.a2dp.default \
 	audio.usb.default \
