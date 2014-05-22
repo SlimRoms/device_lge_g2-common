@@ -6,7 +6,6 @@
  * by Dan Rosenberg (@djrbliss)
  *
  */
-
 #include <stdio.h>
 #include <fcntl.h>
 #include <sys/mman.h>
@@ -14,20 +13,71 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "loki.h"
 
-int loki_flash(const char* partition_label, const char* loki_image)
+#define VERSION "2.0"
+
+#define BOOT_MAGIC_SIZE 8
+#define BOOT_NAME_SIZE 16
+#define BOOT_ARGS_SIZE 512
+
+struct boot_img_hdr {
+	unsigned char magic[BOOT_MAGIC_SIZE];
+	unsigned kernel_size;	/* size in bytes */
+	unsigned kernel_addr;	/* physical load addr */
+	unsigned ramdisk_size;	/* size in bytes */
+	unsigned ramdisk_addr;	/* physical load addr */
+	unsigned second_size;	/* size in bytes */
+	unsigned second_addr;	/* physical load addr */
+	unsigned tags_addr;		/* physical addr for kernel tags */
+	unsigned page_size;		/* flash page size we assume */
+	unsigned dt_size;		/* device_tree in bytes */
+	unsigned unused;		/* future expansion: should be 0 */
+	unsigned char name[BOOT_NAME_SIZE];	/* asciiz product name */
+	unsigned char cmdline[BOOT_ARGS_SIZE];
+	unsigned id[8];			/* timestamp / checksum / sha1 / etc */
+};
+
+struct loki_hdr {
+    unsigned char magic[4];     /* 0x494b4f4c */
+    unsigned int recovery;      /* 0 = boot.img, 1 = recovery.img */
+    unsigned char build[128];   /* Build number */
+
+    unsigned int orig_kernel_size;
+    unsigned int orig_ramdisk_size;
+    unsigned int ramdisk_addr;
+};
+
+#define PATTERN1 "\xf0\xb5\x8f\xb0\x06\x46\xf0\xf7"
+#define PATTERN2 "\xf0\xb5\x8f\xb0\x07\x46\xf0\xf7"
+#define PATTERN3 "\x2d\xe9\xf0\x41\x86\xb0\xf1\xf7"
+#define PATTERN4 "\x2d\xe9\xf0\x4f\xad\xf5\xc6\x6d"
+#define PATTERN5 "\x2d\xe9\xf0\x4f\xad\xf5\x21\x7d"
+#define PATTERN6 "\x2d\xe9\xf0\x4f\xf3\xb0\x05\x46"
+
+#define ABOOT_BASE_SAMSUNG 0x88dfffd8
+#define ABOOT_BASE_LG 0x88efffd8
+#define ABOOT_BASE_G2 0xf7fffd8
+
+int main(int argc, char **argv)
 {
+
 	int ifd, aboot_fd, ofd, recovery, offs, match;
 	void *orig, *aboot, *patch;
 	struct stat st;
 	struct boot_img_hdr *hdr;
 	struct loki_hdr *loki_hdr;
-	char outfile[1024];
+	char prop[256], outfile[1024], buf[4096];
 
-	if (!strcmp(partition_label, "boot")) {
+	if (argc != 3) {
+		printf("[+] Usage: %s [boot|recovery] [in.lok]\n", argv[0]);
+		return 1;
+	}
+
+	printf("[+] loki_flash v%s\n", VERSION);
+
+	if (!strcmp(argv[1], "boot")) {
 		recovery = 0;
-	} else if (!strcmp(partition_label, "recovery")) {
+	} else if (!strcmp(argv[1], "recovery")) {
 		recovery = 1;
 	} else {
 		printf("[+] First argument must be \"boot\" or \"recovery\".\n");
@@ -35,15 +85,15 @@ int loki_flash(const char* partition_label, const char* loki_image)
 	}
 
 	/* Verify input file */
-	aboot_fd = open(ABOOT_PARTITION, O_RDONLY);
+	aboot_fd = open("/dev/block/platform/msm_sdcc.1/by-name/aboot", O_RDONLY);
 	if (aboot_fd < 0) {
 		printf("[-] Failed to open aboot for reading.\n");
 		return 1;
 	}
 
-	ifd = open(loki_image, O_RDONLY);
+	ifd = open(argv[2], O_RDONLY);
 	if (ifd < 0) {
-		printf("[-] Failed to open %s for reading.\n", loki_image);
+		printf("[-] Failed to open %s for reading.\n", argv[2]);
 		return 1;
 	}
 
@@ -85,16 +135,12 @@ int loki_flash(const char* partition_label, const char* loki_image)
 
 	for (offs = 0; offs < 0x10; offs += 0x4) {
 
-		patch = NULL;
-
-		if (hdr->ramdisk_addr > ABOOT_BASE_LG)
-			patch = hdr->ramdisk_addr - ABOOT_BASE_LG + aboot + offs;
-		else if (hdr->ramdisk_addr > ABOOT_BASE_SAMSUNG)
-			patch = hdr->ramdisk_addr - ABOOT_BASE_SAMSUNG + aboot + offs;
-		else if (hdr->ramdisk_addr > ABOOT_BASE_VIPER)
-			patch = hdr->ramdisk_addr - ABOOT_BASE_VIPER + aboot + offs;
-		else if (hdr->ramdisk_addr > ABOOT_BASE_G2)
+		if (hdr->ramdisk_addr < ABOOT_BASE_SAMSUNG)
 			patch = hdr->ramdisk_addr - ABOOT_BASE_G2 + aboot + offs;
+		else if (hdr->ramdisk_addr < ABOOT_BASE_LG)
+			patch = hdr->ramdisk_addr - ABOOT_BASE_SAMSUNG + aboot + offs;
+		else
+			patch = hdr->ramdisk_addr - ABOOT_BASE_LG + aboot + offs;
 
 		if (patch < aboot || patch > aboot + 0x40000 - 8) {
 			printf("[-] Invalid .lok file.\n");
@@ -121,8 +167,8 @@ int loki_flash(const char* partition_label, const char* loki_image)
 	printf("[+] Loki validation passed, flashing image.\n");
 
 	snprintf(outfile, sizeof(outfile),
-			 "%s",
-			 recovery ? RECOVERY_PARTITION : BOOT_PARTITION);
+			 "/dev/block/platform/msm_sdcc.1/by-name/%s",
+			 recovery ? "recovery" : "boot");
 
 	ofd = open(outfile, O_WRONLY);
 	if (ofd < 0) {
