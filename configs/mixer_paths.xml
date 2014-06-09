@@ -378,13 +378,14 @@
 
     <path name="voice-rec-mic">
         <path name="handset-mic" />
-        <ctl name="ADC1 Volume" value="15" />
-        <ctl name="DEC6 Volume" value="88" />
+        <ctl name="ADC1 Volume" value="12" />
+        <ctl name="DEC6 Volume" value="78" />
     </path>
 
     <path name="camcorder-mic">
         <path name="handset-mic" />
-        <ctl name="DEC6 Volume" value="88" />
+        <ctl name="ADC1 volume" value="12" />
+        <ctl name="DEC6 Volume" value="78" />
     </path>
 
     <path name="hdmi-tx">
