@@ -35,6 +35,7 @@ on init
     symlink /mnt/shell/emulated/0 /storage/emulated/legacy
     symlink /storage/sdcard1 /sdcard1
 
+
     # Setup custom emergency number list based on
     # the MCC. This is needed by RIL.
     setprop persist.radio.custom_ecc "1"
@@ -84,21 +85,14 @@ on boot
     # create symlink for fb1 as HDMI
     symlink /dev/graphics/fb1 /dev/graphics/hdmi
 
-    # setup permissions for fb1 related nodes
-    chown system graphics /sys/class/graphics/fb1/hpd
-    chown system graphics /sys/class/graphics/fb1/vendor_name
-    chown system graphics /sys/class/graphics/fb1/product_description
+    # Remove write permissions to video related nodes
     chmod 0664 /sys/devices/virtual/graphics/fb1/hpd
-    chmod 0664 /sys/devices/virtual/graphics/fb1/vendor_name
-    chmod 0664 /sys/devices/virtual/graphics/fb1/product_description
+    chmod 0664 /sys/devices/virtual/graphics/fb1/video_mode
+    chmod 0664 /sys/devices/virtual/graphics/fb1/format_3d
 
     # Change owner and group for media server and surface flinger
     chown system system /sys/devices/virtual/graphics/fb1/format_3d
     chown system system /sys/devices/virtual/graphics/fb1/hpd
-
-    # fb2 permissions
-    chown system graphics /sys/class/graphics/fb2/ad
-    chmod 0664 /sys/devices/virtual/graphics/fb2/ad
 
     #For bridgemgr daemon to inform the USB driver of the correct transport
     chown radio radio /sys/class/android_usb/f_rmnet_smd_sdio/transport
@@ -157,16 +151,23 @@ on boot
     chmod 0644 /proc/bluetooth/sleep/btwrite
     chown bluetooth bluetooth /proc/bluetooth/sleep/lpm
     chown bluetooth bluetooth /proc/bluetooth/sleep/btwrite
+    chown bluetooth bluetooth /dev/ttyHS99
+    chmod 0660 /dev/ttyHS99
+    chown bluetooth bluetooth /dev/btlock
+    chmod 0660 /dev/btlock
+    chown bluetooth bluetooth /proc/bluetooth/sleep/btwake
+    chown bluetooth bluetooth /proc/bluetooth/sleep/proto
+    chmod 0660 /proc/bluetooth/sleep/btwake
+    chmod 0660 /proc/bluetooth/sleep/proto
     restorecon /proc/bluetooth/sleep/lpm
     restorecon /proc/bluetooth/sleep/btwrite
 
-    # Torch
-    chown system camera /sys/class/leds/led:flash_torch/brightness
-    chmod 0640 /sys/class/leds/led:flash_torch/brightness
-
-    # vibrator
+# vibrator
     chown system system /sys/class/timed_output/vibrator/amp
     chmod 0660 /sys/class/timed_output/vibrator/amp
+    chown system system /sys/class/timed_output/vibrator/enable
+    chmod 0660 /sys/class/timed_output/vibrator/enable
+
 
 # lights perms
     chown system system /sys/class/leds/red/brightness
@@ -185,6 +186,7 @@ on post-fs-data
 
     # bluetooth
     mkdir /data/misc/bluetooth 0770 bluetooth bluetooth
+    mkdir /data/misc/bluedroid 0770 bluetooth bluetooth
 
     # wifi
     chown wifi system /persist/wifi
@@ -222,6 +224,20 @@ on post-fs-data
     mkdir /data/system 0775 system system
     #symlink /data/misc/wifi/wpa_supplicant /data/system/wpa_supplicant
 
+    #Create directory used by sensor subsystem(dsps)
+    mkdir /data/system/sensors
+    chmod 665 /data/system/sensors
+    write /data/system/sensors/settings 1
+    restorecon /data/system/sensors/settings
+    chmod 660 /data/system/sensors/settings
+
+    # AKM setting data
+    mkdir /data/misc/sensors
+    chmod 775 /data/misc/sensors
+
+    mkdir /persist/sensors
+    chmod 775 /persist/sensors
+
     #Provide the access to hostapd.conf only to root and group
     chmod 0660 /data/hostapd/hostapd.conf
 
@@ -232,10 +248,6 @@ on post-fs-data
     setprop vold.post_fs_data_done 1
 
     rm /data/local/tmp/adreno_config.txt
-
-    # communicate with mpdecision and thermald
-    mkdir /dev/socket/mpdecision 0770 system system
-    chmod 2770 /dev/socket/mpdecision
 
     # time_daemon storage
     mkdir /data/time/ 0700 system system
@@ -390,9 +402,6 @@ service charger /charger
 # virtual sdcard daemon running as media_rw (1023)
 service sdcard /system/bin/sdcard /data/media /mnt/shell/emulated 1023 1023
     class late_start
-
-service mpdecision /system/bin/mpdecision --no_sleep --avg_comp
-    class main
 
 service qcamerasvr /system/bin/mm-qcamera-daemon
     class late_start
