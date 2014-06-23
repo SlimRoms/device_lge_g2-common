@@ -285,8 +285,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 # This hw ships locked, work around it with loki
 PRODUCT_PACKAGES += \
         loki.sh \
-        loki_patch \
-        loki_flash
+        loki_tool
 
 PRODUCT_PROPERTY_OVERRIDES += \
   mm.enable.smoothstreaming=true
