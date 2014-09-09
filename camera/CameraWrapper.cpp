@@ -29,6 +29,7 @@
 
 #include <utils/threads.h>
 #include <utils/String8.h>
+#include <utils/Errors.h>
 #include <hardware/hardware.h>
 #include <hardware/camera.h>
 #include <camera/Camera.h>
@@ -253,7 +254,7 @@ int camera_start_preview(struct camera_device * device)
         return -EINVAL;
 
     rc = VENDOR_CALL(device, start_preview);
-    previewRunning = rc > 0;
+    previewRunning = (rc == android::NO_ERROR);
     return rc;
 }
 
@@ -631,4 +632,3 @@ int camera_get_camera_info(int camera_id, struct camera_info *info)
         return 0;
     return gVendorModule->get_camera_info(camera_id, info);
 }
-
