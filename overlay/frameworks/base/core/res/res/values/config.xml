@@ -115,6 +115,7 @@
         <item>"mobile_fota,10,0,2,60000,true"</item>
         <item>"mobile_ims,11,0,2,60000,true"</item>
         <item>"mobile_cbs,12,0,2,60000,true"</item>
+        <item>"mobile_ia,14,0,2,-1,true"</item>
         <item>"bluetooth,7,7,2,-1,true"</item>
     </string-array>
 
@@ -249,24 +250,10 @@
         <item>0</item>
     </integer-array>
 
-    <!-- Device supports LED flashlight -->
-    <bool name="config_enableTorch">true</bool>
-
     <!-- Disable lockscreen translucent decor by default -->
     <bool name="config_enableLockScreenTranslucentDecor">true</bool>
 
-    <!-- Performance profiles -->
-    <string name="config_perf_profile_prop">sys.perf.profile</string>
-    <string name="config_perf_profile_default_entry">1</string>
-
     <bool name="config_lidControlsSleep">true</bool>
-
-    <integer-array name="config_smartCoverWindowCoords">
-        <item>55</item>     <!-- Top -->
-        <item>200</item>    <!-- Left -->
-        <item>850</item>    <!-- Bottom -->
-        <item>880</item>    <!-- Right -->
-    </integer-array>
 
     <!-- Enable the option to check proximity sensor when deciding whether to
          turn the screen on

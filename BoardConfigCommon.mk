@@ -44,6 +44,7 @@ BOARD_KERNEL_SEPARATED_DT := true
 
 BOARD_CUSTOM_BOOTIMG_MK := device/lge/g2-common/releasetools/mkbootimg.mk
 TARGET_KERNEL_SOURCE := kernel/lge/msm8974
+TARGET_KERNEL_CUSTOM_TOOLCHAIN := linaro-4.7-13.04/bin/arm-linux-gnueabihf-
 
 BOARD_USES_ALSA_AUDIO:= true
 AUDIO_FEATURE_DEEP_BUFFER_PRIMARY := true
@@ -109,10 +110,9 @@ BOARD_BLUEDROID_VENDOR_CONF := device/lge/g2-common/bluetooth/vnd_g2.txt
 # GPS
 BOARD_VENDOR_QCOM_GPS_LOC_API_HARDWARE := $(TARGET_BOARD_PLATFORM)
 TARGET_NO_RPC := true
+TARGET_PROVIDES_GPS_LOC_API := true
 
 BOARD_CHARGER_ENABLE_SUSPEND := true
-
-BOARD_HARDWARE_CLASS := device/lge/g2-common/cmhw/
 
 BOARD_SEPOLICY_DIRS += \
         device/lge/g2-common/sepolicy
@@ -130,6 +130,8 @@ TARGET_RELEASETOOLS_EXTENSIONS := device/lge/g2-common/releasetools
 
 COMMON_GLOBAL_CFLAGS += -DBOARD_CHARGING_CMDLINE_NAME='"androidboot.mode"' -DBOARD_CHARGING_CMDLINE_VALUE='"chargerlogo"'
 BOARD_USES_QC_TIME_SERVICES := true
+
+BOARD_SUPPRESS_SECURE_ERASE := true
 
 # Shader cache config options
 # Maximum size of the  GLES Shaders that can be cached for reuse.
