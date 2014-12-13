@@ -86,9 +86,6 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     charger_res_images
 
-PRODUCT_PACKAGES += \
-    Torch
-
 # Live Wallpapers
 PRODUCT_PACKAGES += \
     LiveWallpapers \
