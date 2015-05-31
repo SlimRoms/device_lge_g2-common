@@ -39,7 +39,7 @@ BOARD_KERNEL_PAGESIZE := 2048
 BOARD_KERNEL_SEPARATED_DT := true
 
 BOARD_CUSTOM_BOOTIMG_MK := device/lge/g2-common/releasetools/mkbootimg.mk
-TARGET_KERNEL_SOURCE := kernel/lge/msm8974-caf
+TARGET_KERNEL_SOURCE := kernel/lge/msm8974
 TARGET_KERNEL_ARCH := arm
 
 # Audio
