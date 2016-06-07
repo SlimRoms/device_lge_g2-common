@@ -90,7 +90,7 @@ BOARD_SYSTEMIMAGE_PARTITION_SIZE := 2684354560 # 2.5G (actually 2.75, but leave 
 BOARD_USERDATAIMAGE_PARTITION_SIZE := 13725837312 # 12.8G (its much larger, but this is enough for now)
 
 # Power
-TARGET_POWERHAL_VARIANT := qcom
+TARGET_POWERHAL_VARIANT := none
 
 # Qualcomm support
 BOARD_USES_QCOM_HARDWARE := true
