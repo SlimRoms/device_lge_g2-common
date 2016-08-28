@@ -57,10 +57,9 @@ COMMON_GLOBAL_CFLAGS += -DCAMERA_VENDOR_L_COMPAT
 USE_DEVICE_SPECIFIC_CAMERA := true
 
 # Charger
+BOARD_CHARGING_CMDLINE_NAME := "androidboot.mode"
+BOARD_CHARGING_CMDLINE_VALUE := "chargerlogo"
 BOARD_CHARGER_ENABLE_SUSPEND := true
-COMMON_GLOBAL_CFLAGS += \
-    -DBOARD_CHARGING_CMDLINE_NAME='"androidboot.mode"' \
-    -DBOARD_CHARGING_CMDLINE_VALUE='"chargerlogo"'
 
 TARGET_TAP_TO_WAKE_NODE := "/sys/devices/virtual/input/lge_touch/touch_gesture"
 
